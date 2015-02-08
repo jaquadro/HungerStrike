@@ -5,6 +5,7 @@ import com.jaquadro.minecraft.hungerstrike.network.PacketPipeline;
 import com.jaquadro.minecraft.hungerstrike.network.SyncConfigPacket;
 import com.jaquadro.minecraft.hungerstrike.network.SyncExtendedPlayerPacket;
 import com.jaquadro.minecraft.hungerstrike.proxy.CommonProxy;
+import cpw.mods.fml.client.event.ConfigChangedEvent;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
@@ -25,7 +26,7 @@ import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 
-@Mod(modid = HungerStrike.MOD_ID, name = HungerStrike.MOD_NAME, version = HungerStrike.MOD_VERSION)
+@Mod(modid = HungerStrike.MOD_ID, name = HungerStrike.MOD_NAME, version = HungerStrike.MOD_VERSION, guiFactory = HungerStrike.SOURCE_PATH + "ModGuiFactory")
 public class HungerStrike
 {
     public static final String MOD_ID = "hungerstrike";
@@ -52,6 +53,7 @@ public class HungerStrike
 
     @Mod.EventHandler
     public void load (FMLInitializationEvent event) {
+        FMLCommonHandler.instance().bus().register(instance);
         MinecraftForge.EVENT_BUS.register(proxy);
 
         packetPipeline.initialise();
@@ -78,5 +80,9 @@ public class HungerStrike
         handler.registerCommand(new CommandHungerStrike());
     }
 
-
+    @SubscribeEvent
+    public void onConfigChanged (ConfigChangedEvent.OnConfigChangedEvent event) {
+        if (event.modID.equals(MOD_ID))
+            config.syncConfig();
+    }
 }

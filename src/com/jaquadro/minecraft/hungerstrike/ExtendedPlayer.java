@@ -131,6 +131,6 @@ public class ExtendedPlayer implements IExtendedEntityProperties
         else if (player.isPotionActive(Potion.regeneration))
             return 20;
         else
-            return 10;
+            return HungerStrike.instance.config.getHungerBaseline();
     }
 }

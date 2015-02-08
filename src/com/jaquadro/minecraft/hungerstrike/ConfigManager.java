@@ -34,11 +34,16 @@ public class ConfigManager
     private double foodHealFactor = .5;
     private int foodStackSize = -1;
     private boolean hideHungerBar = true;
+    private int hungerBaseline = 10;
 
     public void setup (File location) {
         config = new Configuration(location);
         config.load();
 
+        syncConfig();
+    }
+
+    public void syncConfig () {
         modeProperty = config.get(Configuration.CATEGORY_GENERAL, "Mode", "ALL");
         modeProperty.comment = "Mode can be set to NONE, LIST, or ALL\n" +
             "- NONE: Hunger Strike is disabled for all players.\n" +
@@ -60,12 +65,19 @@ public class ConfigManager
             "on hunger strike.  If the hunger bar is left visible, it will remain filled at half capacity,\n" +
             "except when certain potion effects are active like hunger and regeneration.";
 
+        Property hungerBaselineProperty = config.get(Configuration.CATEGORY_GENERAL, "HungerBaseline", 10);
+        hungerBaselineProperty.comment = "The default hunger level when no status effects are active.\n" +
+            "Valid range is [1 - 20], with 20 being fully filled, and 10 being half-filled.  The default\n" +
+            "value is 10, which disables health regen but allows sprinting.";
+
         mode = Mode.fromValueIgnoreCase(modeProperty.getString());
         foodHealFactor = foodHealProperty.getDouble(.5);
         foodStackSize = foodStackSizeProperty.getInt(-1);
         hideHungerBar = hideHungerBarProperty.getBoolean(true);
+        hungerBaseline = hungerBaselineProperty.getInt(10);
 
-        config.save();
+        if (config.hasChanged())
+            config.save();
     }
 
     public double getFoodHealFactor () {
@@ -78,6 +90,10 @@ public class ConfigManager
 
     public boolean isHungerBarHidden () {
         return hideHungerBar;
+    }
+
+    public int getHungerBaseline () {
+        return hungerBaseline;
     }
 
     public Mode getMode () {
@@ -93,5 +109,9 @@ public class ConfigManager
 
     public void setModeSoft (Mode value) {
         mode = value;
+    }
+
+    public Configuration getConfig () {
+        return config;
     }
 }
