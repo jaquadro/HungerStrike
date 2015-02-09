@@ -3,17 +3,16 @@ package com.jaquadro.minecraft.hungerstrike.proxy;
 import com.jaquadro.minecraft.hungerstrike.ExtendedPlayer;
 import com.jaquadro.minecraft.hungerstrike.HungerStrike;
 import com.jaquadro.minecraft.hungerstrike.PlayerHandler;
-import com.jaquadro.minecraft.hungerstrike.network.SyncConfigPacket;
-import com.jaquadro.minecraft.hungerstrike.network.SyncExtendedPlayerPacket;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.TickEvent;
-import net.minecraft.client.Minecraft;
+import com.jaquadro.minecraft.hungerstrike.network.RequestSyncMessage;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.relauncher.Side;
 
 public class CommonProxy
 {
@@ -21,6 +20,10 @@ public class CommonProxy
 
     public CommonProxy () {
         playerHandler = new PlayerHandler();
+    }
+
+    public void registerNetworkHandlers () {
+        HungerStrike.network.registerMessage(RequestSyncMessage.Handler.class, RequestSyncMessage.class, RequestSyncMessage.MESSAGE_ID, Side.SERVER);
     }
 
     @SubscribeEvent
@@ -42,10 +45,9 @@ public class CommonProxy
 
     @SubscribeEvent
     public void entityJoinWorld (EntityJoinWorldEvent event) {
-        if (!event.entity.worldObj.isRemote && event.entity instanceof EntityPlayerMP) {
+        if (!event.entity.worldObj.isRemote && event.entity instanceof EntityPlayerMP)
             playerHandler.restoreData((EntityPlayer) event.entity);
-            HungerStrike.packetPipeline.sendTo(new SyncExtendedPlayerPacket((EntityPlayer) event.entity), (EntityPlayerMP) event.entity);
-            HungerStrike.packetPipeline.sendTo(new SyncConfigPacket(), (EntityPlayerMP) event.entity);
-        }
+        else if (event.entity.worldObj.isRemote && event.entity instanceof EntityPlayerSP)
+            HungerStrike.network.sendToServer(new RequestSyncMessage());
     }
 }

@@ -1,9 +1,6 @@
 package com.jaquadro.minecraft.hungerstrike;
 
-import com.jaquadro.minecraft.hungerstrike.network.SyncExtendedPlayerPacket;
-import cpw.mods.fml.common.gameevent.TickEvent;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.server.FMLServerHandler;
+import com.jaquadro.minecraft.hungerstrike.network.SyncExtendedPlayerMessage;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -12,6 +9,8 @@ import net.minecraft.potion.Potion;
 import net.minecraft.util.FoodStats;
 import net.minecraft.world.World;
 import net.minecraftforge.common.IExtendedEntityProperties;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.relauncher.Side;
 
 public class ExtendedPlayer implements IExtendedEntityProperties
 {
@@ -64,7 +63,7 @@ public class ExtendedPlayer implements IExtendedEntityProperties
         if (hungerStrikeEnabled != enable) {
             hungerStrikeEnabled = enable;
             if (player instanceof EntityPlayerMP)
-                HungerStrike.packetPipeline.sendTo(new SyncExtendedPlayerPacket(player), (EntityPlayerMP)player);
+                HungerStrike.network.sendTo(new SyncExtendedPlayerMessage(player), (EntityPlayerMP)player);
         }
     }
 

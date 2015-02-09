@@ -4,14 +4,14 @@ import com.jaquadro.minecraft.hungerstrike.ConfigManager;
 import com.jaquadro.minecraft.hungerstrike.ExtendedPlayer;
 import com.jaquadro.minecraft.hungerstrike.HungerStrike;
 import com.jaquadro.minecraft.hungerstrike.PlayerHandler;
-import com.jaquadro.minecraft.hungerstrike.network.SyncConfigPacket;
-import com.jaquadro.minecraft.hungerstrike.network.SyncExtendedPlayerPacket;
+import com.jaquadro.minecraft.hungerstrike.network.SyncConfigMessage;
 import net.minecraft.command.CommandBase;
+import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatComponentTranslation;
 
@@ -21,13 +21,13 @@ import java.util.List;
 public class CommandHungerStrike extends CommandBase {
 
     @Override
-    public String getCommandName () {
-        return "hungerstrike";
+    public int getRequiredPermissionLevel() {
+        return 3;
     }
 
     @Override
-    public int getRequiredPermissionLevel() {
-        return 3;
+    public String getName () {
+        return "hungerstrike";
     }
 
     @Override
@@ -36,7 +36,7 @@ public class CommandHungerStrike extends CommandBase {
     }
 
     @Override
-    public void processCommand (ICommandSender sender, String[] args) {
+    public void execute (ICommandSender sender, String[] args) throws CommandException {
         if (args.length >= 1) {
             if (args[0].equals("list")) {
                 List<String> players = playersToNames(PlayerHandler.getStrikingPlayers());
@@ -55,7 +55,7 @@ public class CommandHungerStrike extends CommandBase {
                 ExtendedPlayer player = ExtendedPlayer.get(getPlayer(sender, args[1]));
                 player.enableHungerStrike(true);
 
-                func_152373_a(sender, this, "commands.hungerstrike.add.success", args[1]); // notifyAdmins
+                notifyOperators(sender, this, "commands.hungerstrike.add.success", args[1]);
                 return;
             }
 
@@ -66,7 +66,7 @@ public class CommandHungerStrike extends CommandBase {
                 ExtendedPlayer player = ExtendedPlayer.get(getPlayer(sender, args[1]));
                 player.enableHungerStrike(false);
 
-                func_152373_a(sender, this, "commands.hungerstrike.remove.success", args[1]); // notifyAdmins
+                notifyOperators(sender, this, "commands.hungerstrike.remove.success", args[1]);
                 return;
             }
 
@@ -74,11 +74,11 @@ public class CommandHungerStrike extends CommandBase {
                 ConfigManager.Mode mode = HungerStrike.instance.config.getMode();
 
                 if (mode == ConfigManager.Mode.NONE)
-                    func_152373_a(sender, this, "commands.hungerstrike.mode.none"); // notifyAdmins
+                    notifyOperators(sender, this, "commands.hungerstrike.mode.none");
                 else if (mode == ConfigManager.Mode.LIST)
-                    func_152373_a(sender, this, "commands.hungerstrike.mode.list"); // notifyAdmins
+                    notifyOperators(sender, this, "commands.hungerstrike.mode.list");
                 else if (mode == ConfigManager.Mode.ALL)
-                    func_152373_a(sender, this, "commands.hungerstrike.mode.all"); // notifyAdmins
+                    notifyOperators(sender, this, "commands.hungerstrike.mode.all");
                 return;
             }
 
@@ -90,14 +90,14 @@ public class CommandHungerStrike extends CommandBase {
                 HungerStrike.instance.config.setMode(mode);
 
                 if (!sender.getEntityWorld().isRemote)
-                    HungerStrike.packetPipeline.sendToAll(new SyncConfigPacket());
+                    HungerStrike.network.sendToAll(new SyncConfigMessage());
 
                 if (mode == ConfigManager.Mode.NONE)
-                    func_152373_a(sender, this, "commands.hungerstrike.setmode.none"); // notifyAdmins
+                    notifyOperators(sender, this, "commands.hungerstrike.setmode.none");
                 else if (mode == ConfigManager.Mode.LIST)
-                    func_152373_a(sender, this, "commands.hungerstrike.setmode.list"); // notifyAdmins
+                    notifyOperators(sender, this, "commands.hungerstrike.setmode.list");
                 else if (mode == ConfigManager.Mode.ALL)
-                    func_152373_a(sender, this, "commands.hungerstrike.setmode.all"); // notifyAdmins
+                    notifyOperators(sender, this, "commands.hungerstrike.setmode.all");
                 return;
             }
         }
@@ -106,7 +106,7 @@ public class CommandHungerStrike extends CommandBase {
     }
 
     @Override
-    public List addTabCompletionOptions(ICommandSender sender, String[] args) {
+    public List addTabCompletionOptions(ICommandSender sender, String[] args, BlockPos pos) {
         if (args.length == 1) {
             return getListOfStringsMatchingLastWord(args, "list", "add", "remove", "mode", "setmode");
         }
@@ -134,7 +134,7 @@ public class CommandHungerStrike extends CommandBase {
     private List<String> playersToNames (List<EntityPlayer> players) {
         List<String> playerNames = new ArrayList<String>(players.size());
         for (EntityPlayer player : players)
-            playerNames.add(player.getCommandSenderName());
+            playerNames.add(player.getName());
 
         return playerNames;
     }

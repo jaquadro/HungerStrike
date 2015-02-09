@@ -1,8 +1,5 @@
 package com.jaquadro.minecraft.hungerstrike;
 
-import com.jaquadro.minecraft.hungerstrike.network.SyncExtendedPlayerPacket;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 
