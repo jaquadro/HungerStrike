@@ -3,6 +3,7 @@ package com.jaquadro.minecraft.hungerstrike;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraftforge.common.config.ConfigElement;
 import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.client.config.GuiConfig;
 import net.minecraftforge.fml.client.config.IConfigElement;
 
@@ -18,10 +19,8 @@ public class ModConfigGui extends GuiConfig
     private static List<IConfigElement> getConfigElements () {
         List<IConfigElement> list = new ArrayList<IConfigElement>();
 
-        list.add(new ConfigElement(HungerStrike.instance.config.getConfig().getCategory(Configuration.CATEGORY_GENERAL)));
-
-        //for (ConfigManager.ConfigSection section : StorageDrawers.config.sections)
-        //    list.add(new ConfigElement(section.getCategory()));
+        for (Property prop : HungerStrike.instance.config.getConfig().getCategory(Configuration.CATEGORY_GENERAL).values())
+            list.add(new ConfigElement(prop));
 
         return list;
     }
