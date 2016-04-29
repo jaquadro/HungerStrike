@@ -11,10 +11,7 @@ import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLServerStartedEvent;
+import net.minecraftforge.fml.common.event.*;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
@@ -25,7 +22,7 @@ public class HungerStrike
 {
     public static final String MOD_ID = "hungerstrike";
     static final String MOD_NAME = "Hunger Strike";
-    static final String MOD_VERSION = "1.8.0-1.0.6";
+    static final String MOD_VERSION = "1.9.0-1.0.6";
     static final String SOURCE_PATH = "com.jaquadro.minecraft.hungerstrike.";
 
     @Mod.Instance(MOD_ID)
@@ -65,14 +62,13 @@ public class HungerStrike
     }
 
     @Mod.EventHandler
-    public void serverStarted (FMLServerStartedEvent event) {
-        CommandHandler handler = (CommandHandler) MinecraftServer.getServer().getCommandManager();
-        handler.registerCommand(new CommandHungerStrike());
+    public void serverStarted (FMLServerStartingEvent event) {
+        event.registerServerCommand(new CommandHungerStrike());
     }
 
     @SubscribeEvent
     public void onConfigChanged (ConfigChangedEvent.OnConfigChangedEvent event) {
-        if (event.modID.equals(MOD_ID))
+        if (event.getModID().equals(MOD_ID))
             config.syncConfig();
     }
 }

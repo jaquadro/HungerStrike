@@ -20,7 +20,7 @@ public class ClientProxy extends CommonProxy {
 
     @SubscribeEvent
     public void renderGameOverlay (RenderGameOverlayEvent event) {
-        if (event.type == RenderGameOverlayEvent.ElementType.FOOD) {
+        if (event.getType() == RenderGameOverlayEvent.ElementType.FOOD) {
             if (!HungerStrike.config.isHungerBarHidden())
                 return;
 

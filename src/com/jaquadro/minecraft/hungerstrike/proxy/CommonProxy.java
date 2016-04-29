@@ -1,13 +1,14 @@
 package com.jaquadro.minecraft.hungerstrike.proxy;
 
 import com.jaquadro.minecraft.hungerstrike.ExtendedPlayer;
+import com.jaquadro.minecraft.hungerstrike.ExtendedPlayerProvider;
 import com.jaquadro.minecraft.hungerstrike.HungerStrike;
 import com.jaquadro.minecraft.hungerstrike.PlayerHandler;
 import com.jaquadro.minecraft.hungerstrike.network.RequestSyncMessage;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraftforge.event.entity.EntityEvent;
+import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -16,6 +17,7 @@ import net.minecraftforge.fml.relauncher.Side;
 
 public class CommonProxy
 {
+
     public PlayerHandler playerHandler;
 
     public CommonProxy () {
@@ -32,22 +34,22 @@ public class CommonProxy
     }
 
     @SubscribeEvent
-    public void entityConstructing (EntityEvent.EntityConstructing event) {
-        if (event.entity instanceof EntityPlayer && ExtendedPlayer.get((EntityPlayer) event.entity) == null)
-            ExtendedPlayer.register((EntityPlayer) event.entity);
+    public void attachCapabilites (AttachCapabilitiesEvent event) {
+        if (event.getObject() instanceof EntityPlayer)
+            event.addCapability(ExtendedPlayer.EXTENDED_PLAYER_KEY, new ExtendedPlayerProvider((EntityPlayer) event.getObject()));
     }
 
     @SubscribeEvent
     public void livingDeath (LivingDeathEvent event) {
-        if (!event.entity.worldObj.isRemote && event.entity instanceof EntityPlayerMP)
-            playerHandler.storeData((EntityPlayer) event.entity);
+        if (!event.getEntity().worldObj.isRemote && event.getEntity() instanceof EntityPlayerMP)
+            playerHandler.storeData((EntityPlayer) event.getEntity());
     }
 
     @SubscribeEvent
     public void entityJoinWorld (EntityJoinWorldEvent event) {
-        if (!event.entity.worldObj.isRemote && event.entity instanceof EntityPlayerMP)
-            playerHandler.restoreData((EntityPlayer) event.entity);
-        else if (event.entity.worldObj.isRemote && event.entity instanceof EntityPlayerSP)
+        if (!event.getEntity().worldObj.isRemote && event.getEntity() instanceof EntityPlayerMP)
+            playerHandler.restoreData((EntityPlayer) event.getEntity());
+        else if (event.getEntity().worldObj.isRemote && event.getEntity() instanceof EntityPlayerSP)
             HungerStrike.network.sendToServer(new RequestSyncMessage());
     }
 }
