@@ -7,14 +7,16 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.FoodStats;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
-import net.minecraftforge.common.IExtendedEntityProperties;
+import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 
-public class ExtendedPlayer implements IExtendedEntityProperties
+public class ExtendedPlayer
 {
-    public final static String TAG = "HungerStrike";
+    public static final ResourceLocation EXTENDED_PLAYER_KEY = new ResourceLocation("HungerStrike:ExtendedPlayer");
+    public static Capability<ExtendedPlayer> EXTENDED_PLAYER_CAPABILITY;
 
     private final EntityPlayer player;
 
@@ -26,37 +28,20 @@ public class ExtendedPlayer implements IExtendedEntityProperties
         this.hungerStrikeEnabled = false;
     }
 
-    public static final void register (EntityPlayer player) {
-        player.registerExtendedProperties(TAG, new ExtendedPlayer(player));
-    }
-
     public static final ExtendedPlayer get (EntityPlayer player) {
-        return (ExtendedPlayer) player.getExtendedProperties(TAG);
+        return player.getCapability(EXTENDED_PLAYER_CAPABILITY, null);
     }
 
-    @Override
-    public void init(Entity entity, World world) { }
-
-    @Override
     public void saveNBTData(NBTTagCompound compound) {
-        NBTTagCompound properties = new NBTTagCompound();
-        properties.setBoolean("Enabled", hungerStrikeEnabled);
-
-        compound.setTag(TAG, properties);
+        compound.setBoolean("Enabled", hungerStrikeEnabled);
     }
 
-    @Override
     public void loadNBTData(NBTTagCompound compound) {
-        NBTTagCompound properties = (NBTTagCompound) compound.getTag(TAG);
-
-        hungerStrikeEnabled = properties.getBoolean("Enabled");
+        hungerStrikeEnabled = compound.getBoolean("Enabled");
     }
 
     public void saveNBTDataSync (NBTTagCompound compound) {
-        NBTTagCompound properties = new NBTTagCompound();
-        properties.setBoolean("Enabled", hungerStrikeEnabled);
-
-        compound.setTag(TAG, properties);
+        compound.setBoolean("Enabled", hungerStrikeEnabled);
     }
 
     public void enableHungerStrike (boolean enable) {
@@ -125,9 +110,9 @@ public class ExtendedPlayer implements IExtendedEntityProperties
     }
 
     private int calcBaselineHunger () {
-        if (player.isPotionActive(Potion.hunger))
+        if (player.isPotionActive(Potion.getPotionFromResourceLocation("hunger")))
             return 5;
-        else if (player.isPotionActive(Potion.regeneration))
+        else if (player.isPotionActive(Potion.getPotionFromResourceLocation("regeneration")))
             return 20;
         else
             return HungerStrike.instance.config.getHungerBaseline();
