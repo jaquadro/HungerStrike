@@ -17,12 +17,12 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.common.registry.GameData;
 
-@Mod(modid = HungerStrike.MOD_ID, name = HungerStrike.MOD_NAME, version = HungerStrike.MOD_VERSION, guiFactory = HungerStrike.SOURCE_PATH + "ModGuiFactory")
+@Mod(modid = HungerStrike.MOD_ID, name = HungerStrike.MOD_NAME, version = HungerStrike.MOD_VERSION, guiFactory = HungerStrike.SOURCE_PATH + "ModGuiFactory", acceptedMinecraftVersions = "[1.9,1.10)")
 public class HungerStrike
 {
     public static final String MOD_ID = "hungerstrike";
     static final String MOD_NAME = "Hunger Strike";
-    static final String MOD_VERSION = "1.9.0-1.0.6";
+    static final String MOD_VERSION = "1.9-1.0.6";
     static final String SOURCE_PATH = "com.jaquadro.minecraft.hungerstrike.";
 
     @Mod.Instance(MOD_ID)
@@ -36,15 +36,14 @@ public class HungerStrike
 
     @Mod.EventHandler
     public void preInit (FMLPreInitializationEvent event) {
-        FMLCommonHandler.instance().bus().register(proxy);
+        MinecraftForge.EVENT_BUS.register(proxy);
 
         config.setup(event.getSuggestedConfigurationFile());
     }
 
     @Mod.EventHandler
     public void load (FMLInitializationEvent event) {
-        FMLCommonHandler.instance().bus().register(instance);
-        MinecraftForge.EVENT_BUS.register(proxy);
+        MinecraftForge.EVENT_BUS.register(instance);
 
         network = NetworkRegistry.INSTANCE.newSimpleChannel(MOD_ID);
         proxy.registerNetworkHandlers();
@@ -53,8 +52,7 @@ public class HungerStrike
     @Mod.EventHandler
     public void postInit (FMLPostInitializationEvent event) {
         if (config.getFoodStackSize() > -1) {
-            for (Object obj : GameData.getItemRegistry()) {
-                Item item = (Item) obj;
+            for (Item item : Item.REGISTRY) {
                 if (item instanceof ItemFood)
                     item.setMaxStackSize(config.getFoodStackSize());
             }
