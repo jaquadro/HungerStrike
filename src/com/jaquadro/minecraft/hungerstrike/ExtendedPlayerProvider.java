@@ -19,12 +19,12 @@ public class ExtendedPlayerProvider implements ICapabilityProvider, INBTSerializ
 
     @Override
     public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
-        return capability == ExtendedPlayer.EXTENDED_PLAYER_CAPABILITY;
+        return capability == ExtendedPlayerHandler.EXTENDED_PLAYER_CAPABILITY;
     }
 
     @Override
     public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
-        return capability == ExtendedPlayer.EXTENDED_PLAYER_CAPABILITY ? (T) extendedPlayer : (T) null;
+        return capability == ExtendedPlayerHandler.EXTENDED_PLAYER_CAPABILITY ? (T) extendedPlayer : (T) null;
     }
 
     @Override

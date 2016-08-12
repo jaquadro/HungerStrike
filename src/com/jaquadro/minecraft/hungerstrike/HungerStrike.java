@@ -17,7 +17,7 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.common.registry.GameData;
 
-@Mod(modid = HungerStrike.MOD_ID, name = HungerStrike.MOD_NAME, version = HungerStrike.MOD_VERSION, guiFactory = HungerStrike.SOURCE_PATH + "ModGuiFactory", acceptedMinecraftVersions = "[1.9,1.10)")
+@Mod(modid = HungerStrike.MOD_ID, name = HungerStrike.MOD_NAME, version = HungerStrike.MOD_VERSION, guiFactory = HungerStrike.SOURCE_PATH + "ModGuiFactory", acceptedMinecraftVersions = "[1.9,1.11)")
 public class HungerStrike
 {
     public static final String MOD_ID = "hungerstrike";
@@ -39,6 +39,8 @@ public class HungerStrike
         MinecraftForge.EVENT_BUS.register(proxy);
 
         config.setup(event.getSuggestedConfigurationFile());
+
+        ExtendedPlayerHandler.register();
     }
 
     @Mod.EventHandler

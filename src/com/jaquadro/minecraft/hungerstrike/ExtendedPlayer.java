@@ -1,21 +1,22 @@
 package com.jaquadro.minecraft.hungerstrike;
 
 import com.jaquadro.minecraft.hungerstrike.network.SyncExtendedPlayerMessage;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.FoodStats;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 
 public class ExtendedPlayer
 {
     public static final ResourceLocation EXTENDED_PLAYER_KEY = new ResourceLocation("HungerStrike:ExtendedPlayer");
+
+    @CapabilityInject(ExtendedPlayer.class)
     public static Capability<ExtendedPlayer> EXTENDED_PLAYER_CAPABILITY;
 
     private final EntityPlayer player;
@@ -28,7 +29,10 @@ public class ExtendedPlayer
         this.hungerStrikeEnabled = false;
     }
 
-    public static final ExtendedPlayer get (EntityPlayer player) {
+    public static ExtendedPlayer get (EntityPlayer player) {
+        if (EXTENDED_PLAYER_CAPABILITY == null)
+            return null;
+
         return player.getCapability(EXTENDED_PLAYER_CAPABILITY, null);
     }
 
