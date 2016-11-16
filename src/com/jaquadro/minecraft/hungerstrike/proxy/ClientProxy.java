@@ -31,7 +31,7 @@ public class ClientProxy extends CommonProxy {
                     event.setCanceled(true);
                     break;
                 case LIST:
-                    if (playerHandler.isOnHungerStrike(Minecraft.getMinecraft().thePlayer))
+                    if (playerHandler.isOnHungerStrike(Minecraft.getMinecraft().player))
                         event.setCanceled(true);
                     break;
             }
