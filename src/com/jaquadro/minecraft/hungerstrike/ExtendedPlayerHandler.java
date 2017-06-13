@@ -7,8 +7,6 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 
-import java.util.concurrent.Callable;
-
 public class ExtendedPlayerHandler
 {
     @CapabilityInject(ExtendedPlayer.class)
@@ -26,12 +24,8 @@ public class ExtendedPlayerHandler
             public void readNBT (Capability<ExtendedPlayer> capability, ExtendedPlayer instance, EnumFacing side, NBTBase nbt) {
 
             }
-        }, new Callable<ExtendedPlayer>()
-        {
-            @Override
-            public ExtendedPlayer call () throws Exception {
-                return new ExtendedPlayer(null);
-            }
+        }, () -> {
+            return new ExtendedPlayer(null);
         });
     }
 }

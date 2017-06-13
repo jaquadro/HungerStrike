@@ -15,7 +15,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class CommandHungerStrike extends CommandBase {
@@ -25,12 +27,12 @@ public class CommandHungerStrike extends CommandBase {
     }
 
     @Override
-    public String getCommandName () {
+    public String getName () {
         return "hungerstrike";
     }
 
     @Override
-    public String getCommandUsage (ICommandSender sender) {
+    public String getUsage (ICommandSender sender) {
         return "commands.hungerstrike.usage";
     }
 
@@ -40,10 +42,9 @@ public class CommandHungerStrike extends CommandBase {
             if (args[0].equals("list")) {
                 List<String> players = playersToNames(PlayerHandler.getStrikingPlayers(server));
 
-                sender.addChatMessage(new TextComponentTranslation("commands.hungerstrike.list",
-                    Integer.valueOf(players.size()),
-                    Integer.valueOf(server.getPlayerList().getPlayerList().size())));
-                sender.addChatMessage(new TextComponentString(joinNiceString(players.toArray(new String[players.size()]))));
+                sender.sendMessage(new TextComponentTranslation("commands.hungerstrike.list",
+                    players.size(), server.getPlayerList().getPlayers().size()));
+                sender.sendMessage(new TextComponentString(joinNiceString(players.toArray(new String[players.size()]))));
                 return;
             }
 
@@ -52,7 +53,8 @@ public class CommandHungerStrike extends CommandBase {
                     throw new WrongUsageException("commands.hungerstrike.add.usage");
 
                 ExtendedPlayer player = ExtendedPlayer.get(getPlayer(server, sender, args[1]));
-                player.enableHungerStrike(true);
+                if (player != null)
+                    player.enableHungerStrike(true);
 
                 notifyCommandListener(sender, this, "commands.hungerstrike.add.success", args[1]);
                 return;
@@ -63,14 +65,15 @@ public class CommandHungerStrike extends CommandBase {
                     throw new WrongUsageException("commands.hungerstrike.remove.usage");
 
                 ExtendedPlayer player = ExtendedPlayer.get(getPlayer(server, sender, args[1]));
-                player.enableHungerStrike(false);
+                if (player != null)
+                    player.enableHungerStrike(false);
 
                 notifyCommandListener(sender, this, "commands.hungerstrike.remove.success", args[1]);
                 return;
             }
 
             if (args[0].equals("mode")) {
-                ConfigManager.Mode mode = HungerStrike.instance.config.getMode();
+                ConfigManager.Mode mode = HungerStrike.config.getMode();
 
                 if (mode == ConfigManager.Mode.NONE)
                     notifyCommandListener(sender, this, "commands.hungerstrike.mode.none");
@@ -86,7 +89,7 @@ public class CommandHungerStrike extends CommandBase {
                     throw new WrongUsageException("commands.hungerstrike.setmode.usage");
 
                 ConfigManager.Mode mode = ConfigManager.Mode.fromValueIgnoreCase(args[1]);
-                HungerStrike.instance.config.setMode(mode);
+                HungerStrike.config.setMode(mode);
 
                 if (!sender.getEntityWorld().isRemote)
                     HungerStrike.network.sendToAll(new SyncConfigMessage());
@@ -105,7 +108,8 @@ public class CommandHungerStrike extends CommandBase {
     }
 
     @Override
-    public List getTabCompletionOptions(MinecraftServer server, ICommandSender sender, String[] args, BlockPos pos) {
+    @Nonnull
+    public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, BlockPos pos) {
         if (args.length == 1) {
             return getListOfStringsMatchingLastWord(args, "list", "add", "remove", "mode", "setmode");
         }
@@ -126,12 +130,12 @@ public class CommandHungerStrike extends CommandBase {
                 }
             }
 
-            return null;
+            return Collections.<String>emptyList();
         }
     }
 
     private List<String> playersToNames (List<EntityPlayer> players) {
-        List<String> playerNames = new ArrayList<String>(players.size());
+        List<String> playerNames = new ArrayList<>(players.size());
         for (EntityPlayer player : players)
             playerNames.add(player.getName());
 
@@ -139,9 +143,8 @@ public class CommandHungerStrike extends CommandBase {
     }
 
     private List<String> getPartialMatches (String partialName, List<String> candidates) {
-        List<String> suggestions = new ArrayList<String>();
-        for (int i = 0; i < candidates.size(); i++) {
-            String playerName = candidates.get(i);
+        List<String> suggestions = new ArrayList<>();
+        for (String playerName : candidates) {
             if (doesStringStartWith(partialName, playerName))
                 suggestions.add(playerName);
         }

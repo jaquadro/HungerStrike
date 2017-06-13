@@ -15,7 +15,7 @@ import java.util.Map;
 
 public class PlayerHandler
 {
-    private static final Map<GameProfile, Map<String, NBTTagCompound>> dataStore = new HashMap<GameProfile, Map<String, NBTTagCompound>>();
+    private static final Map<GameProfile, Map<String, NBTTagCompound>> dataStore = new HashMap<>();
 
     public static List<EntityPlayer> getStrikingPlayers (MinecraftServer server) {
         return getPlayers(server, true);
@@ -26,8 +26,8 @@ public class PlayerHandler
     }
 
     private static List<EntityPlayer> getPlayers (MinecraftServer server, boolean isStriking) {
-        List<EntityPlayer> players = new ArrayList<EntityPlayer>();
-        for (EntityPlayerMP playerEnt : server.getPlayerList().getPlayerList()) {
+        List<EntityPlayer> players = new ArrayList<>();
+        for (EntityPlayerMP playerEnt : server.getPlayerList().getPlayers()) {
             ExtendedPlayer playerExt = ExtendedPlayer.get(playerEnt);
             if (playerExt != null && playerExt.isOnHungerStrike() == isStriking)
                 players.add(playerEnt);
@@ -39,10 +39,12 @@ public class PlayerHandler
     public void storeData (EntityPlayer player) {
         ExtendedPlayer playerExt = ExtendedPlayer.get(player);
 
-        NBTTagCompound data = new NBTTagCompound();
-        playerExt.saveNBTData(data);
+        if (playerExt != null) {
+            NBTTagCompound data = new NBTTagCompound();
+            playerExt.saveNBTData(data);
 
-        storeData(player, "HungerStrike", data);
+            storeData(player, "HungerStrike", data);
+        }
     }
 
     public void storeData (EntityPlayer player, String name, NBTTagCompound data) {
@@ -52,7 +54,7 @@ public class PlayerHandler
     public void storeData (GameProfile profile, String name, NBTTagCompound data) {
         Map<String, NBTTagCompound> store = dataStore.get(profile);
         if (store == null) {
-            store = new HashMap<String, NBTTagCompound>();
+            store = new HashMap<>();
             dataStore.put(profile, store);
         }
 
@@ -62,9 +64,11 @@ public class PlayerHandler
     public void restoreData (EntityPlayer player) {
         ExtendedPlayer playerExt = ExtendedPlayer.get(player);
 
-        NBTTagCompound data = getData(player, "HungerStrike");
-        if (data != null)
-            playerExt.loadNBTData(data);
+        if (playerExt != null) {
+            NBTTagCompound data = getData(player, "HungerStrike");
+            if (data != null)
+                playerExt.loadNBTData(data);
+        }
     }
 
     public NBTTagCompound getData (EntityPlayer player, String name) {

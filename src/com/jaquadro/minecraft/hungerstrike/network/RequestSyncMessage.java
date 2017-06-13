@@ -23,7 +23,7 @@ public class RequestSyncMessage implements IMessage
         @Override
         public IMessage onMessage (RequestSyncMessage message, MessageContext ctx) {
             if (ctx.side == Side.SERVER) {
-                EntityPlayerMP player = ctx.getServerHandler().playerEntity;
+                EntityPlayerMP player = ctx.getServerHandler().player;
                 HungerStrike.network.sendTo(new SyncExtendedPlayerMessage(player), player);
                 HungerStrike.network.sendTo(new SyncConfigMessage(), player);
             }

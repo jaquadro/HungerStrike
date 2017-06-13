@@ -17,9 +17,9 @@ public class ModConfigGui extends GuiConfig
     }
 
     private static List<IConfigElement> getConfigElements () {
-        List<IConfigElement> list = new ArrayList<IConfigElement>();
+        List<IConfigElement> list = new ArrayList<>();
 
-        for (Property prop : HungerStrike.instance.config.getConfig().getCategory(Configuration.CATEGORY_GENERAL).values())
+        for (Property prop : HungerStrike.config.getConfig().getCategory(Configuration.CATEGORY_GENERAL).values())
             list.add(new ConfigElement(prop));
 
         return list;

@@ -76,7 +76,7 @@ public class ExtendedPlayer
     }*/
 
     private boolean shouldTick () {
-        ConfigManager.Mode mode = HungerStrike.instance.config.getMode();
+        ConfigManager.Mode mode = HungerStrike.config.getMode();
         if (mode == ConfigManager.Mode.LIST)
             return hungerStrikeEnabled;
         else
@@ -102,7 +102,7 @@ public class ExtendedPlayer
         if (side == Side.SERVER) {
             int foodDiff = player.getFoodStats().getFoodLevel() - startHunger;
             if (foodDiff > 0)
-                player.heal(foodDiff * (float)HungerStrike.instance.config.getFoodHealFactor());
+                player.heal(foodDiff * (float) HungerStrike.config.getFoodHealFactor());
         }
 
         setFoodData(player.getFoodStats(), calcBaselineHunger(), 1);
@@ -119,6 +119,6 @@ public class ExtendedPlayer
         else if (player.isPotionActive(Potion.getPotionFromResourceLocation("regeneration")))
             return 20;
         else
-            return HungerStrike.instance.config.getHungerBaseline();
+            return HungerStrike.config.getHungerBaseline();
     }
 }
