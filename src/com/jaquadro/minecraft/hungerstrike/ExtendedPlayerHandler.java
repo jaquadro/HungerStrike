@@ -1,8 +1,8 @@
 package com.jaquadro.minecraft.hungerstrike;
 
-import net.minecraft.nbt.NBTBase;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.INBT;
+import net.minecraft.util.Direction;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.CapabilityManager;
@@ -16,12 +16,12 @@ public class ExtendedPlayerHandler
         CapabilityManager.INSTANCE.register(ExtendedPlayer.class, new Capability.IStorage<ExtendedPlayer>()
         {
             @Override
-            public NBTBase writeNBT (Capability<ExtendedPlayer> capability, ExtendedPlayer instance, EnumFacing side) {
-                return new NBTTagCompound();
+            public INBT writeNBT (Capability<ExtendedPlayer> capability, ExtendedPlayer instance, Direction side) {
+                return new CompoundNBT();
             }
 
             @Override
-            public void readNBT (Capability<ExtendedPlayer> capability, ExtendedPlayer instance, EnumFacing side, NBTBase nbt) {
+            public void readNBT (Capability<ExtendedPlayer> capability, ExtendedPlayer instance, Direction side, INBT nbt) {
 
             }
         }, () -> {

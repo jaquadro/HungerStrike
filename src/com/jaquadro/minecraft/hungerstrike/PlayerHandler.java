@@ -3,6 +3,8 @@ package com.jaquadro.minecraft.hungerstrike;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -17,17 +19,17 @@ public class PlayerHandler
 {
     private static final Map<GameProfile, Map<String, NBTTagCompound>> dataStore = new HashMap<>();
 
-    public static List<EntityPlayer> getStrikingPlayers (MinecraftServer server) {
+    public static List<PlayerEntity> getStrikingPlayers (MinecraftServer server) {
         return getPlayers(server, true);
     }
 
-    public static List<EntityPlayer> getNonStrikingPlayers (MinecraftServer server) {
+    public static List<PlayerEntity> getNonStrikingPlayers (MinecraftServer server) {
         return getPlayers(server, false);
     }
 
-    private static List<EntityPlayer> getPlayers (MinecraftServer server, boolean isStriking) {
-        List<EntityPlayer> players = new ArrayList<>();
-        for (EntityPlayerMP playerEnt : server.getPlayerList().getPlayers()) {
+    private static List<PlayerEntity> getPlayers (MinecraftServer server, boolean isStriking) {
+        List<PlayerEntity> players = new ArrayList<>();
+        for (ServerPlayerEntity playerEnt : server.getPlayerList().getPlayers()) {
             ExtendedPlayer playerExt = ExtendedPlayer.get(playerEnt);
             if (playerExt != null && playerExt.isOnHungerStrike() == isStriking)
                 players.add(playerEnt);

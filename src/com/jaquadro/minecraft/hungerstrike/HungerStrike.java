@@ -1,6 +1,7 @@
 package com.jaquadro.minecraft.hungerstrike;
 
 import com.jaquadro.minecraft.hungerstrike.command.CommandHungerStrike;
+import com.jaquadro.minecraft.hungerstrike.network.PacketHandler;
 import com.jaquadro.minecraft.hungerstrike.proxy.CommonProxy;
 import net.minecraft.command.CommandHandler;
 import net.minecraft.item.Item;
@@ -16,11 +17,24 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.common.registry.GameData;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-@Mod(modid = HungerStrike.MOD_ID, name = HungerStrike.MOD_NAME, version = HungerStrike.MOD_VERSION, guiFactory = HungerStrike.SOURCE_PATH + "ModGuiFactory", acceptedMinecraftVersions = "[1.12,1.13)")
+@Mod(HungerStrike.MOD_ID)
 public class HungerStrike
 {
     public static final String MOD_ID = "hungerstrike";
+    public static final Logger log = LogManager.getLogger(MOD_ID.toUpperCase());
+
+    public HungerStrike() {
+
+    }
+
+    private void preInit(FMLCommonSetupEvent event) {
+        PacketHandler.init();
+    }
+
     static final String MOD_NAME = "Hunger Strike";
     static final String MOD_VERSION = "@VERSION@";
     static final String SOURCE_PATH = "com.jaquadro.minecraft.hungerstrike.";

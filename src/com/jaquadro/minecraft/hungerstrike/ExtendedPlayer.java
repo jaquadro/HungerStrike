@@ -1,8 +1,9 @@
 package com.jaquadro.minecraft.hungerstrike;
 
 import com.jaquadro.minecraft.hungerstrike.network.SyncExtendedPlayerMessage;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.FoodStats;
@@ -19,28 +20,28 @@ public class ExtendedPlayer
     @CapabilityInject(ExtendedPlayer.class)
     public static Capability<ExtendedPlayer> EXTENDED_PLAYER_CAPABILITY;
 
-    private final EntityPlayer player;
+    private final PlayerEntity player;
 
     private boolean hungerStrikeEnabled;
     private int startHunger;
 
-    public ExtendedPlayer(EntityPlayer player) {
+    public ExtendedPlayer(PlayerEntity player) {
         this.player = player;
         this.hungerStrikeEnabled = false;
     }
 
-    public static ExtendedPlayer get (EntityPlayer player) {
+    public static ExtendedPlayer get (PlayerEntity player) {
         if (EXTENDED_PLAYER_CAPABILITY == null)
             return null;
 
         return player.getCapability(EXTENDED_PLAYER_CAPABILITY, null);
     }
 
-    public void saveNBTData(NBTTagCompound compound) {
-        compound.setBoolean("Enabled", hungerStrikeEnabled);
+    public void saveNBTData(CompoundNBT compound) {
+        compound.putBoolean("Enabled", hungerStrikeEnabled);
     }
 
-    public void loadNBTData(NBTTagCompound compound) {
+    public void loadNBTData(CompoundNBT compound) {
         hungerStrikeEnabled = compound.getBoolean("Enabled");
     }
 
@@ -51,9 +52,13 @@ public class ExtendedPlayer
     public void enableHungerStrike (boolean enable) {
         if (hungerStrikeEnabled != enable) {
             hungerStrikeEnabled = enable;
-            if (player instanceof EntityPlayerMP)
+            if (player instanceof ServerPlayerEntity)
                 HungerStrike.network.sendTo(new SyncExtendedPlayerMessage(player), (EntityPlayerMP)player);
         }
+    }
+
+    public void loadState (boolean hungerStrikeEnabled) {
+        this.hungerStrikeEnabled = hungerStrikeEnabled;
     }
 
     public boolean isOnHungerStrike () {
