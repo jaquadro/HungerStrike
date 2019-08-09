@@ -27,7 +27,7 @@ public class PacketSyncExtendedPlayer
         this.hungerStrikeEnabled = hungerStrikeEnabled;
     }
 
-    PacketSyncExtendedPlayer(PlayerEntity player) {
+    public PacketSyncExtendedPlayer(PlayerEntity player) {
         this(getHungerStrikeFromPlayer(player));
     }
 

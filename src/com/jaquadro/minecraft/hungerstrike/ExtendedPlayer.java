@@ -1,21 +1,21 @@
 package com.jaquadro.minecraft.hungerstrike;
 
-import com.jaquadro.minecraft.hungerstrike.network.SyncExtendedPlayerMessage;
+import com.jaquadro.minecraft.hungerstrike.network.PacketSyncExtendedPlayer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.potion.Potion;
+import net.minecraft.potion.Effects;
 import net.minecraft.util.FoodStats;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
-import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.fml.network.NetworkDirection;
 
 public class ExtendedPlayer
 {
-    public static final ResourceLocation EXTENDED_PLAYER_KEY = new ResourceLocation("HungerStrike:ExtendedPlayer");
+    public static final ResourceLocation EXTENDED_PLAYER_KEY = new ResourceLocation("hungerstrike:extended_player");
 
     @CapabilityInject(ExtendedPlayer.class)
     public static Capability<ExtendedPlayer> EXTENDED_PLAYER_CAPABILITY;
@@ -34,7 +34,7 @@ public class ExtendedPlayer
         if (EXTENDED_PLAYER_CAPABILITY == null)
             return null;
 
-        return player.getCapability(EXTENDED_PLAYER_CAPABILITY, null);
+        return player.getCapability(EXTENDED_PLAYER_CAPABILITY, null).orElse(null);
     }
 
     public void saveNBTData(CompoundNBT compound) {
@@ -45,15 +45,17 @@ public class ExtendedPlayer
         hungerStrikeEnabled = compound.getBoolean("Enabled");
     }
 
-    public void saveNBTDataSync (NBTTagCompound compound) {
-        compound.setBoolean("Enabled", hungerStrikeEnabled);
-    }
+    //public void saveNBTDataSync (NBTTagCompound compound) {
+    //    compound.setBoolean("Enabled", hungerStrikeEnabled);
+    //}
 
     public void enableHungerStrike (boolean enable) {
         if (hungerStrikeEnabled != enable) {
             hungerStrikeEnabled = enable;
-            if (player instanceof ServerPlayerEntity)
-                HungerStrike.network.sendTo(new SyncExtendedPlayerMessage(player), (EntityPlayerMP)player);
+            if (player instanceof ServerPlayerEntity) {
+                ServerPlayerEntity playerMP = (ServerPlayerEntity)player;
+                HungerStrike.network.sendTo(new PacketSyncExtendedPlayer(player), playerMP.connection.getNetworkManager(), NetworkDirection.PLAY_TO_CLIENT);
+            }
         }
     }
 
@@ -88,7 +90,7 @@ public class ExtendedPlayer
             return mode == ConfigManager.Mode.ALL;
     }
 
-    public void tick (TickEvent.Phase phase, Side side) {
+    public void tick (TickEvent.Phase phase, Dist side) {
         if (!shouldTick())
             return;
 
@@ -103,8 +105,8 @@ public class ExtendedPlayer
         startHunger = player.getFoodStats().getFoodLevel();
     }
 
-    private void tickEnd (Side side) {
-        if (side == Side.SERVER) {
+    private void tickEnd (Dist side) {
+        if (side == Dist.DEDICATED_SERVER) {
             int foodDiff = player.getFoodStats().getFoodLevel() - startHunger;
             if (foodDiff > 0)
                 player.heal(foodDiff * (float) HungerStrike.config.getFoodHealFactor());
@@ -119,9 +121,9 @@ public class ExtendedPlayer
     }
 
     private int calcBaselineHunger () {
-        if (player.isPotionActive(Potion.getPotionFromResourceLocation("hunger")))
+        if (player.isPotionActive(Effects.HUNGER))
             return 5;
-        else if (player.isPotionActive(Potion.getPotionFromResourceLocation("regeneration")))
+        else if (player.isPotionActive(Effects.REGENERATION))
             return 20;
         else
             return HungerStrike.config.getHungerBaseline();

@@ -7,6 +7,7 @@ import net.minecraft.command.CommandHandler;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemFood;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -18,6 +19,9 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.common.registry.GameData;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.network.NetworkRegistry;
+import net.minecraftforge.fml.network.simple.SimpleChannel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -28,7 +32,8 @@ public class HungerStrike
     public static final Logger log = LogManager.getLogger(MOD_ID.toUpperCase());
 
     public HungerStrike() {
-
+        MinecraftForge.EVENT_BUS.register(this);
+        //FMLJavaModLoadingContext.get().getModEventBus().register(this);
     }
 
     private void preInit(FMLCommonSetupEvent event) {
@@ -45,7 +50,14 @@ public class HungerStrike
     @SidedProxy(clientSide = SOURCE_PATH + "proxy.ClientProxy", serverSide = SOURCE_PATH + "proxy.ServerProxy")
     public static CommonProxy proxy;
 
-    public static SimpleNetworkWrapper network;
+    public static final SimpleChannel network = NetworkRegistry.ChannelBuilder
+        .named(new ResourceLocation(MOD_ID, "channel"))
+        .clientAcceptedVersions(s -> true)
+        .serverAcceptedVersions(s -> true)
+        .networkProtocolVersion(() -> "1.0.0")
+        .simpleChannel();
+
+    //public static SimpleNetworkWrapper network;
     public static ConfigManager config = new ConfigManager();
 
     @Mod.EventHandler
@@ -61,7 +73,7 @@ public class HungerStrike
     public void load (FMLInitializationEvent event) {
         MinecraftForge.EVENT_BUS.register(instance);
 
-        network = NetworkRegistry.INSTANCE.newSimpleChannel(MOD_ID);
+        //network = NetworkRegistry.INSTANCE.newSimpleChannel(MOD_ID);
         proxy.registerNetworkHandlers();
     }
 
