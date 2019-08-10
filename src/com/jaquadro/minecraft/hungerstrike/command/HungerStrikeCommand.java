@@ -1,8 +1,7 @@
 package com.jaquadro.minecraft.hungerstrike.command;
 
-import com.jaquadro.minecraft.hungerstrike.ConfigManager;
+import com.jaquadro.minecraft.hungerstrike.ModConfig;
 import com.jaquadro.minecraft.hungerstrike.ExtendedPlayer;
-import com.jaquadro.minecraft.hungerstrike.HungerStrike;
 import com.jaquadro.minecraft.hungerstrike.PlayerHandler;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.CommandDispatcher;
@@ -56,11 +55,11 @@ public class HungerStrikeCommand
             )
             .then(Commands.literal("setmode")
                 .then(Commands.literal("none")
-                    .executes((command) -> setMode(command.getSource(), ConfigManager.Mode.NONE))
+                    .executes((command) -> setMode(command.getSource(), ModConfig.Mode.NONE))
                 ).then(Commands.literal("list")
-                    .executes((command) -> setMode(command.getSource(), ConfigManager.Mode.LIST))
+                    .executes((command) -> setMode(command.getSource(), ModConfig.Mode.LIST))
                 ).then(Commands.literal("all")
-                    .executes((command) -> setMode(command.getSource(), ConfigManager.Mode.ALL))
+                    .executes((command) -> setMode(command.getSource(), ModConfig.Mode.ALL))
                 )
             )
         );
@@ -107,29 +106,29 @@ public class HungerStrikeCommand
     }
 
     private static int getMode(CommandSource source) {
-        ConfigManager.Mode mode = HungerStrike.config.getMode();
+        ModConfig.Mode mode = ModConfig.GENERAL.mode.get();
 
-        if (mode == ConfigManager.Mode.NONE)
+        if (mode == ModConfig.Mode.NONE)
             source.sendFeedback(new TranslationTextComponent("commands.hungerstrike.mode.none"), false);
-        else if (mode == ConfigManager.Mode.LIST)
+        else if (mode == ModConfig.Mode.LIST)
             source.sendFeedback(new TranslationTextComponent("commands.hungerstrike.mode.list"), false);
-        else if (mode == ConfigManager.Mode.ALL)
+        else if (mode == ModConfig.Mode.ALL)
             source.sendFeedback(new TranslationTextComponent("commands.hungerstrike.mode.all"), false);
 
         return 1;
     }
 
-    private static int setMode(CommandSource source, ConfigManager.Mode mode) {
-        HungerStrike.config.setMode(mode);
+    private static int setMode(CommandSource source, ModConfig.Mode mode) {
+        ModConfig.GENERAL.mode.set(mode);
 
-        if (!source.getWorld().isRemote)
-            HungerStrike.network.sendToAll(new SyncConfigMessage());
+        //if (!source.getWorld().isRemote)
+        //    HungerStrike.network.sendToAll(new SyncConfigMessage());
 
-        if (mode == ConfigManager.Mode.NONE)
+        if (mode == ModConfig.Mode.NONE)
             source.sendFeedback(new TranslationTextComponent("commands.hungerstrike.setmode.none"), true);
-        else if (mode == ConfigManager.Mode.LIST)
+        else if (mode == ModConfig.Mode.LIST)
             source.sendFeedback(new TranslationTextComponent("commands.hungerstrike.setmode.list"), true);
-        else if (mode == ConfigManager.Mode.ALL)
+        else if (mode == ModConfig.Mode.ALL)
             source.sendFeedback(new TranslationTextComponent("commands.hungerstrike.setmode.all"), true);
 
         return 1;

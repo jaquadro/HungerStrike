@@ -5,8 +5,8 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.server.MinecraftServer;
-import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.fml.LogicalSide;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -83,7 +83,7 @@ public class PlayerHandler
         return store.remove(name);
     }
 
-    public void tick (PlayerEntity player, TickEvent.Phase phase, Dist side) {
+    public void tick (PlayerEntity player, TickEvent.Phase phase, LogicalSide side) {
         ExtendedPlayer playerExt = ExtendedPlayer.get(player);
         if (playerExt != null)
             playerExt.tick(phase, side);

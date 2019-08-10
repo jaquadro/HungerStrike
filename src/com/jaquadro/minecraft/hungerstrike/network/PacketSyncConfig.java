@@ -1,7 +1,6 @@
 package com.jaquadro.minecraft.hungerstrike.network;
 
-import com.jaquadro.minecraft.hungerstrike.ConfigManager;
-import com.jaquadro.minecraft.hungerstrike.HungerStrike;
+import com.jaquadro.minecraft.hungerstrike.ModConfig;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -27,7 +26,7 @@ public class PacketSyncConfig
     }
 
     PacketSyncConfig() {
-        this(HungerStrike.config.getMode().toString());
+        this(ModConfig.GENERAL.mode.get().toString());
     }
 
     public static void handle(PacketSyncConfig message, Supplier<NetworkEvent.Context> ctx) {
@@ -37,6 +36,6 @@ public class PacketSyncConfig
 
     @OnlyIn(Dist.CLIENT)
     private static void handle(PacketSyncConfig message) {
-        HungerStrike.config.setModeSoft(ConfigManager.Mode.valueOf(message.mode));
+        ModConfig.GENERAL.mode.set(ModConfig.Mode.valueOf(message.mode));
     }
 }

@@ -2,20 +2,17 @@ package com.jaquadro.minecraft.hungerstrike.proxy;
 
 import com.jaquadro.minecraft.hungerstrike.ExtendedPlayer;
 import com.jaquadro.minecraft.hungerstrike.ExtendedPlayerProvider;
-import com.jaquadro.minecraft.hungerstrike.HungerStrike;
 import com.jaquadro.minecraft.hungerstrike.PlayerHandler;
-import com.jaquadro.minecraft.hungerstrike.network.RequestSyncMessage;
-import net.minecraft.client.entity.EntityPlayerSP;
+import com.jaquadro.minecraft.hungerstrike.network.PacketHandler;
+import com.jaquadro.minecraft.hungerstrike.network.PacketRequestSync;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLiving;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
-import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 public class CommonProxy
 {
@@ -24,38 +21,39 @@ public class CommonProxy
 
     public CommonProxy () {
         playerHandler = new PlayerHandler();
+
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::tick);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::attachCapabilites);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::livingDeath);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::entityJoinWorld);
     }
 
     public void registerNetworkHandlers () {
-        HungerStrike.network.registerMessage(RequestSyncMessage.Handler.class, RequestSyncMessage.class, RequestSyncMessage.MESSAGE_ID, Side.SERVER);
+        //HungerStrike.network.registerMessage(RequestSyncMessage.Handler.class, RequestSyncMessage.class, RequestSyncMessage.MESSAGE_ID, Side.SERVER);
     }
 
-    @SubscribeEvent
-    public void tick (TickEvent.PlayerTickEvent event) {
+    private void tick (TickEvent.PlayerTickEvent event) {
         playerHandler.tick(event.player, event.phase, event.side);
     }
 
-    @SubscribeEvent
-    public void attachCapabilites (AttachCapabilitiesEvent event) {
-        if (event.getObject() instanceof EntityPlayer)
-            event.addCapability(ExtendedPlayer.EXTENDED_PLAYER_KEY, new ExtendedPlayerProvider((EntityPlayer) event.getObject()));
+    private void attachCapabilites (AttachCapabilitiesEvent event) {
+        if (event.getObject() instanceof PlayerEntity)
+            event.addCapability(ExtendedPlayer.EXTENDED_PLAYER_KEY, new ExtendedPlayerProvider((PlayerEntity) event.getObject()));
     }
 
-    @SubscribeEvent
-    public void livingDeath (LivingDeathEvent event) {
+    private void livingDeath (LivingDeathEvent event) {
         Entity entity = event.getEntity();
 
-        if (!entity.getEntityWorld().isRemote && entity instanceof EntityPlayerMP)
-            playerHandler.storeData((EntityPlayer) entity);
+        if (!entity.getEntityWorld().isRemote && entity instanceof ServerPlayerEntity)
+            playerHandler.storeData((PlayerEntity) entity);
     }
 
-    @SubscribeEvent
-    public void entityJoinWorld (EntityJoinWorldEvent event) {
+    private void entityJoinWorld (EntityJoinWorldEvent event) {
         Entity entity = event.getEntity();
 
-        if (!entity.getEntityWorld().isRemote && entity instanceof EntityPlayerMP)
-            playerHandler.restoreData((EntityPlayer) entity);
-        else if (entity.getEntityWorld().isRemote && entity instanceof EntityPlayerSP)
-            HungerStrike.network.sendToServer(new RequestSyncMessage());
+        if (!entity.getEntityWorld().isRemote && entity instanceof ServerPlayerEntity)
+            playerHandler.restoreData((PlayerEntity) entity);
+        else if (entity.getEntityWorld().isRemote && entity instanceof ServerPlayerEntity)
+           PacketHandler.INSTANCE.sendToServer(new PacketRequestSync());
     }
 }

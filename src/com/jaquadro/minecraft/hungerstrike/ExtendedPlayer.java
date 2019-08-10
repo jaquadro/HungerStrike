@@ -1,5 +1,6 @@
 package com.jaquadro.minecraft.hungerstrike;
 
+import com.jaquadro.minecraft.hungerstrike.network.PacketHandler;
 import com.jaquadro.minecraft.hungerstrike.network.PacketSyncExtendedPlayer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -7,10 +8,10 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.potion.Effects;
 import net.minecraft.util.FoodStats;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.network.NetworkDirection;
 
 public class ExtendedPlayer
@@ -54,7 +55,7 @@ public class ExtendedPlayer
             hungerStrikeEnabled = enable;
             if (player instanceof ServerPlayerEntity) {
                 ServerPlayerEntity playerMP = (ServerPlayerEntity)player;
-                HungerStrike.network.sendTo(new PacketSyncExtendedPlayer(player), playerMP.connection.getNetworkManager(), NetworkDirection.PLAY_TO_CLIENT);
+                PacketHandler.INSTANCE.sendTo(new PacketSyncExtendedPlayer(player), playerMP.connection.getNetworkManager(), NetworkDirection.PLAY_TO_CLIENT);
             }
         }
     }
@@ -83,14 +84,14 @@ public class ExtendedPlayer
     }*/
 
     private boolean shouldTick () {
-        ConfigManager.Mode mode = HungerStrike.config.getMode();
-        if (mode == ConfigManager.Mode.LIST)
+        ModConfig.Mode mode = ModConfig.GENERAL.mode.get();
+        if (mode == ModConfig.Mode.LIST)
             return hungerStrikeEnabled;
         else
-            return mode == ConfigManager.Mode.ALL;
+            return mode == ModConfig.Mode.ALL;
     }
 
-    public void tick (TickEvent.Phase phase, Dist side) {
+    public void tick (TickEvent.Phase phase, LogicalSide side) {
         if (!shouldTick())
             return;
 
@@ -105,11 +106,11 @@ public class ExtendedPlayer
         startHunger = player.getFoodStats().getFoodLevel();
     }
 
-    private void tickEnd (Dist side) {
-        if (side == Dist.DEDICATED_SERVER) {
+    private void tickEnd (LogicalSide side) {
+        if (side == LogicalSide.SERVER) {
             int foodDiff = player.getFoodStats().getFoodLevel() - startHunger;
             if (foodDiff > 0)
-                player.heal(foodDiff * (float) HungerStrike.config.getFoodHealFactor());
+                player.heal(foodDiff * (float) ModConfig.GENERAL.foodHealFactor.get());
         }
 
         setFoodData(player.getFoodStats(), calcBaselineHunger(), 1);
@@ -126,6 +127,6 @@ public class ExtendedPlayer
         else if (player.isPotionActive(Effects.REGENERATION))
             return 20;
         else
-            return HungerStrike.config.getHungerBaseline();
+            return ModConfig.GENERAL.hungerBaseline.get();
     }
 }
