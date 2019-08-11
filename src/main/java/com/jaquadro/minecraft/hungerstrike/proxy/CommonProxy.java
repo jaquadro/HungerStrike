@@ -8,11 +8,11 @@ import com.jaquadro.minecraft.hungerstrike.network.PacketRequestSync;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 public class CommonProxy
 {
@@ -22,10 +22,10 @@ public class CommonProxy
     public CommonProxy () {
         playerHandler = new PlayerHandler();
 
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::tick);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::attachCapabilites);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::livingDeath);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::entityJoinWorld);
+        MinecraftForge.EVENT_BUS.addListener(this::tick);
+        MinecraftForge.EVENT_BUS.addListener(this::attachCapabilites);
+        MinecraftForge.EVENT_BUS.addListener(this::livingDeath);
+        MinecraftForge.EVENT_BUS.addListener(this::entityJoinWorld);
     }
 
     public void registerNetworkHandlers () {

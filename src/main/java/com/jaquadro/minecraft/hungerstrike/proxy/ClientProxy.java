@@ -3,15 +3,18 @@ package com.jaquadro.minecraft.hungerstrike.proxy;
 import com.jaquadro.minecraft.hungerstrike.ModConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.common.MinecraftForge;
 
 public class ClientProxy extends CommonProxy {
 
+    public ClientProxy() {
+        super();
+
+        MinecraftForge.EVENT_BUS.addListener(this::renderGameOverlay);
+    }
     @Override
     public void registerNetworkHandlers () {
         super.registerNetworkHandlers();
-
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::renderGameOverlay);
 
         //HungerStrike.network.registerMessage(SyncExtendedPlayerMessage.Handler.class, SyncExtendedPlayerMessage.class, SyncExtendedPlayerMessage.MESSAGE_ID, Side.CLIENT);
         //HungerStrike.network.registerMessage(SyncConfigMessage.Handler.class, SyncConfigMessage.class, SyncConfigMessage.MESSAGE_ID, Side.CLIENT);
