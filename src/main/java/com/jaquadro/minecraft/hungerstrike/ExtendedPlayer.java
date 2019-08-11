@@ -110,7 +110,7 @@ public class ExtendedPlayer
         if (side == LogicalSide.SERVER) {
             int foodDiff = player.getFoodStats().getFoodLevel() - startHunger;
             if (foodDiff > 0)
-                player.heal(foodDiff * (float) ModConfig.GENERAL.foodHealFactor.get());
+                player.heal((float)(foodDiff * ModConfig.GENERAL.foodHealFactor.get()));
         }
 
         setFoodData(player.getFoodStats(), calcBaselineHunger(), 1);

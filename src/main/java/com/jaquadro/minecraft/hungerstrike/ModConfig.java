@@ -10,7 +10,7 @@ public class ModConfig
 
     public static class General {
         public final ForgeConfigSpec.ConfigValue<Mode> mode;
-        public final ForgeConfigSpec.ConfigValue<Float> foodHealFactor;
+        public final ForgeConfigSpec.ConfigValue<Double> foodHealFactor;
         public final ForgeConfigSpec.ConfigValue<Integer> foodStackSize;
         public final ForgeConfigSpec.ConfigValue<Boolean> hideHungerBar;
         public final ForgeConfigSpec.ConfigValue<Integer> hungerBaseline;
@@ -24,13 +24,13 @@ public class ModConfig
                     "- LIST: Hunger Strike is enabled for players added",
                     "        in-game with /hungerstrike command.",
                     "- ALL:  Hunger Strike is enabled for all players.")
-                .define("mode", Mode.ALL);
+                .defineEnum("mode", Mode.ALL);
 
             foodHealFactor = builder
                 .comment("How to translate food points into heart points when",
                     "consuming food. At the default value of 0.5, food fills",
                     "your heart bar at half the rate it would fill hunger.")
-                .define("foodHealFactor", 0.5f);
+                .define("foodHealFactor", 0.5);
 
             foodStackSize = builder
                 .comment("Globally overrides the maximum stack size of food items.",

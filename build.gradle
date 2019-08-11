@@ -22,7 +22,7 @@ archivesBaseName = "HungerStrike"
 idea {
   module.iml.withXml {
     def atts = it.asNode().component.content.sourceFolder
-      .find { it.@url == 'file://$MODULE_DIR$/resources' }
+      .find { it.@url == 'file://$MODULE_DIR$/src/main/resources' }
       .attributes()
     atts.put('type', 'java-resource')
   }
@@ -39,13 +39,13 @@ minecraft {
     mappings channel: 'snapshot', version: '20190719-1.14.3'
     // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
     
-    accessTransformer = file('resources/META-INF/accesstransformer.cfg')
+    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 
     // Default run configurations.
     // These can be tweaked, removed, or duplicated as needed.
     runs {
         client {
-            workingDirectory project.file('run')
+            workingDirectory project.file('run').canonicalPath
 
             // Recommended logging data for a userdev environment
             property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
@@ -61,7 +61,7 @@ minecraft {
         }
 
         server {
-            workingDirectory project.file('run')
+            workingDirectory project.file('run').canonicalPath
 
             // Recommended logging data for a userdev environment
             property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
@@ -77,7 +77,7 @@ minecraft {
         }
 
         data {
-            workingDirectory project.file('run')
+            workingDirectory project.file('run').canonicalPath
 
             // Recommended logging data for a userdev environment
             property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
@@ -98,20 +98,27 @@ minecraft {
     // replace '@VERSION@', project.version
 }
 
-sourceSets.main {
+processResources {
+    from (sourceSets.main.resources.srcDirs) {
+        include 'META-INF/mods.toml'
+        expand 'version': project.version
+    }
+}
+
+/*sourceSets.main {
     java {
         srcDirs project.projectDir.getPath() + '/src'
     }
     resources {
         srcDirs project.projectDir.getPath() + '/resources'
     }
-}
+}*/
 
 dependencies {
     // Specify the version of Minecraft to use, If this is any group other then 'net.minecraft' it is assumed
     // that the dep is a ForgeGradle 'patcher' dependency. And it's patches will be applied.
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
-    minecraft 'net.minecraftforge:forge:1.14.4-28.0.45'
+    minecraft "net.minecraftforge:forge:${project.forge_version}"
 
     // You may put jars on which you depend on in ./libs or you may define them like so..
     // compile "some.group:artifact:version:classifier"

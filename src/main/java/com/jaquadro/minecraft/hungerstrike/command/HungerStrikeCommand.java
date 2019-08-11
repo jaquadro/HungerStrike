@@ -69,7 +69,7 @@ public class HungerStrikeCommand
         List<String> players = playersToNames(PlayerHandler.getStrikingPlayers(source.getServer()));
 
         if (players.size() == 0) {
-            source.sendFeedback(new TranslationTextComponent("commands.hungerstrike.none"), false);
+            source.sendFeedback(new TranslationTextComponent("commands.hungerstrike.list.none"), false);
         } else {
             source.sendFeedback(new TranslationTextComponent("commands.hungerstrike.list", players.size(), String.join(", ", players)), false);
         }
