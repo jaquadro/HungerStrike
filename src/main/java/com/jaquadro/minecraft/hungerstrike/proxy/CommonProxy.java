@@ -51,9 +51,9 @@ public class CommonProxy
     private void entityJoinWorld (EntityJoinWorldEvent event) {
         Entity entity = event.getEntity();
 
-        if (!entity.getEntityWorld().isRemote && entity instanceof ServerPlayerEntity)
+        if (!event.getWorld().isRemote && entity instanceof ServerPlayerEntity)
             playerHandler.restoreData((PlayerEntity) entity);
-        else if (entity.getEntityWorld().isRemote && entity instanceof ServerPlayerEntity)
+        else if (event.getWorld().isRemote && entity instanceof ServerPlayerEntity)
            PacketHandler.INSTANCE.sendToServer(new PacketRequestSync());
     }
 }

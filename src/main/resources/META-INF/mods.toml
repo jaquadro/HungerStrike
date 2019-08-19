@@ -15,7 +15,7 @@ authors="Texelsaur"
 [[dependencies.hungerstrike]]
     modId="forge"
     mandatory=true
-    versionRange="[24,)"
+    versionRange="[28.0.45,)"
     ordering="NONE"
     side="BOTH"
 
