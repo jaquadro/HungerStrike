@@ -10,7 +10,6 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -62,11 +61,11 @@ public class HungerStrike
         HungerStrikeCommand.register(event.getCommandDispatcher());
     }
 
-    @SubscribeEvent
-    public void onConfigChanged (ConfigChangedEvent.OnConfigChangedEvent event) {
+    //@SubscribeEvent
+    //public void onConfigChanged (ConfigChangedEvent.OnConfigChangedEvent event) {
         //if (event.getModID().equals(MOD_ID))
         //    config.syncConfig();
-    }
+    //}
 
     //@SidedProxy(clientSide = SOURCE_PATH + "proxy.ClientProxy", serverSide = SOURCE_PATH + "proxy.ServerProxy")
     //public static CommonProxy proxy;
