@@ -5,14 +5,14 @@ import com.jaquadro.minecraft.hungerstrike.ExtendedPlayer;
 import com.jaquadro.minecraft.hungerstrike.PlayerHandler;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.CommandDispatcher;
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.Commands;
-import net.minecraft.command.ISuggestionProvider;
-import net.minecraft.command.arguments.GameProfileArgument;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.management.PlayerList;
-import net.minecraft.util.text.TextComponentUtils;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.commands.arguments.GameProfileArgument;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.players.PlayerList;
+import net.minecraft.network.chat.ComponentUtils;
+import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -20,9 +20,9 @@ import java.util.List;
 
 public class HungerStrikeCommand
 {
-    public static void register(CommandDispatcher<CommandSource> dispatcher) {
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("hungerstrike")
-            .requires((req) -> req.hasPermissionLevel(3))
+            .requires((req) -> req.hasPermission(3))
             .then(Commands.literal("list")
                 .executes((command) -> listPlayers(command.getSource()))
             )
@@ -30,7 +30,7 @@ public class HungerStrikeCommand
                 .then(Commands.argument("targets", GameProfileArgument.gameProfile())
                     .suggests((command, t) -> {
                         PlayerList players = command.getSource().getServer().getPlayerList();
-                        return ISuggestionProvider.suggest(players.getPlayers().stream().filter((entity) -> {
+                        return SharedSuggestionProvider.suggest(players.getPlayers().stream().filter((entity) -> {
                             ExtendedPlayer player = ExtendedPlayer.get(entity);
                             return player != null && !player.isOnHungerStrike();
                         }).map((entity) -> entity.getGameProfile().getName()), t);
@@ -42,7 +42,7 @@ public class HungerStrikeCommand
                 .then(Commands.argument("targets", GameProfileArgument.gameProfile())
                     .suggests((command, t) -> {
                         PlayerList players = command.getSource().getServer().getPlayerList();
-                        return ISuggestionProvider.suggest(players.getPlayers().stream().filter((entity) -> {
+                        return SharedSuggestionProvider.suggest(players.getPlayers().stream().filter((entity) -> {
                             ExtendedPlayer player = ExtendedPlayer.get(entity);
                             return player != null && player.isOnHungerStrike();
                         }).map((entity) -> entity.getGameProfile().getName()), t);
@@ -65,25 +65,25 @@ public class HungerStrikeCommand
         );
     }
 
-    private static int listPlayers(CommandSource source) {
+    private static int listPlayers(CommandSourceStack source) {
         List<String> players = playersToNames(PlayerHandler.getStrikingPlayers(source.getServer()));
 
         if (players.size() == 0) {
-            source.sendFeedback(new TranslationTextComponent("commands.hungerstrike.list.none"), false);
+            source.sendSuccess(new TranslatableComponent("commands.hungerstrike.list.none"), false);
         } else {
-            source.sendFeedback(new TranslationTextComponent("commands.hungerstrike.list", players.size(), String.join(", ", players)), false);
+            source.sendSuccess(new TranslatableComponent("commands.hungerstrike.list", players.size(), String.join(", ", players)), false);
         }
 
         return players.size();
     }
 
-    private static int addPlayers(CommandSource source, Collection<GameProfile> playerProfiles) {
+    private static int addPlayers(CommandSourceStack source, Collection<GameProfile> playerProfiles) {
         int addedCount = 0;
         for (GameProfile profile : playerProfiles) {
-            ExtendedPlayer player = ExtendedPlayer.get(source.getServer().getPlayerList().getPlayerByUUID(profile.getId()));
+            ExtendedPlayer player = ExtendedPlayer.get(source.getServer().getPlayerList().getPlayer(profile.getId()));
             if (player != null && !player.isOnHungerStrike()) {
                 player.enableHungerStrike(true);
-                source.sendFeedback(new TranslationTextComponent("commands.hungerstrike.add.success", TextComponentUtils.getDisplayName(profile)), true);
+                source.sendSuccess(new TranslatableComponent("commands.hungerstrike.add.success", ComponentUtils.getDisplayName(profile)), true);
                 addedCount++;
             }
         }
@@ -91,13 +91,13 @@ public class HungerStrikeCommand
         return addedCount;
     }
 
-    private static int removePlayers(CommandSource source, Collection<GameProfile> playerProfiles) {
+    private static int removePlayers(CommandSourceStack source, Collection<GameProfile> playerProfiles) {
         int removedCount = 0;
         for (GameProfile profile : playerProfiles) {
-            ExtendedPlayer player = ExtendedPlayer.get(source.getServer().getPlayerList().getPlayerByUUID(profile.getId()));
+            ExtendedPlayer player = ExtendedPlayer.get(source.getServer().getPlayerList().getPlayer(profile.getId()));
             if (player != null && player.isOnHungerStrike()) {
                 player.enableHungerStrike(false);
-                source.sendFeedback(new TranslationTextComponent("commands.hungerstrike.remove.success", TextComponentUtils.getDisplayName(profile)), true);
+                source.sendSuccess(new TranslatableComponent("commands.hungerstrike.remove.success", ComponentUtils.getDisplayName(profile)), true);
                 removedCount++;
             }
         }
@@ -105,38 +105,38 @@ public class HungerStrikeCommand
         return removedCount;
     }
 
-    private static int getMode(CommandSource source) {
+    private static int getMode(CommandSourceStack source) {
         ModConfig.Mode mode = ModConfig.GENERAL.mode.get();
 
         if (mode == ModConfig.Mode.NONE)
-            source.sendFeedback(new TranslationTextComponent("commands.hungerstrike.mode.none"), false);
+            source.sendSuccess(new TranslatableComponent("commands.hungerstrike.mode.none"), false);
         else if (mode == ModConfig.Mode.LIST)
-            source.sendFeedback(new TranslationTextComponent("commands.hungerstrike.mode.list"), false);
+            source.sendSuccess(new TranslatableComponent("commands.hungerstrike.mode.list"), false);
         else if (mode == ModConfig.Mode.ALL)
-            source.sendFeedback(new TranslationTextComponent("commands.hungerstrike.mode.all"), false);
+            source.sendSuccess(new TranslatableComponent("commands.hungerstrike.mode.all"), false);
 
         return 1;
     }
 
-    private static int setMode(CommandSource source, ModConfig.Mode mode) {
+    private static int setMode(CommandSourceStack source, ModConfig.Mode mode) {
         ModConfig.GENERAL.mode.set(mode);
 
         //if (!source.getWorld().isRemote)
         //    HungerStrike.network.sendToAll(new SyncConfigMessage());
 
         if (mode == ModConfig.Mode.NONE)
-            source.sendFeedback(new TranslationTextComponent("commands.hungerstrike.setmode.none"), true);
+            source.sendSuccess(new TranslatableComponent("commands.hungerstrike.setmode.none"), true);
         else if (mode == ModConfig.Mode.LIST)
-            source.sendFeedback(new TranslationTextComponent("commands.hungerstrike.setmode.list"), true);
+            source.sendSuccess(new TranslatableComponent("commands.hungerstrike.setmode.list"), true);
         else if (mode == ModConfig.Mode.ALL)
-            source.sendFeedback(new TranslationTextComponent("commands.hungerstrike.setmode.all"), true);
+            source.sendSuccess(new TranslatableComponent("commands.hungerstrike.setmode.all"), true);
 
         return 1;
     }
 
-    private static List<String> playersToNames (List<PlayerEntity> players) {
+    private static List<String> playersToNames (List<Player> players) {
         List<String> playerNames = new ArrayList<>(players.size());
-        for (PlayerEntity player : players)
+        for (Player player : players)
             playerNames.add(player.getName().getString());
 
         return playerNames;
