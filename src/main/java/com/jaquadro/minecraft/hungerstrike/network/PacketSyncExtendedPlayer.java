@@ -1,13 +1,13 @@
 package com.jaquadro.minecraft.hungerstrike.network;
 
 import com.jaquadro.minecraft.hungerstrike.ExtendedPlayer;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
@@ -15,11 +15,11 @@ public class PacketSyncExtendedPlayer
 {
     private boolean hungerStrikeEnabled;
 
-    public static void encode(PacketSyncExtendedPlayer msg, PacketBuffer buf) {
+    public static void encode(PacketSyncExtendedPlayer msg, FriendlyByteBuf buf) {
         buf.writeBoolean(msg.hungerStrikeEnabled);
     }
 
-    public static PacketSyncExtendedPlayer decode(PacketBuffer buf) {
+    public static PacketSyncExtendedPlayer decode(FriendlyByteBuf buf) {
         return new PacketSyncExtendedPlayer(buf.readBoolean());
     }
 
@@ -27,11 +27,11 @@ public class PacketSyncExtendedPlayer
         this.hungerStrikeEnabled = hungerStrikeEnabled;
     }
 
-    public PacketSyncExtendedPlayer(PlayerEntity player) {
+    public PacketSyncExtendedPlayer(Player player) {
         this(getHungerStrikeFromPlayer(player));
     }
 
-    private static boolean getHungerStrikeFromPlayer(PlayerEntity player) {
+    private static boolean getHungerStrikeFromPlayer(Player player) {
         ExtendedPlayer ep = ExtendedPlayer.get(player);
         return (ep != null) && ep.isOnHungerStrike();
     }
@@ -42,7 +42,7 @@ public class PacketSyncExtendedPlayer
     }
 
     @OnlyIn(Dist.CLIENT)
-    private static void handle(PacketSyncExtendedPlayer message, ServerPlayerEntity mp) {
+    private static void handle(PacketSyncExtendedPlayer message, ServerPlayer mp) {
         ExtendedPlayer ep = ExtendedPlayer.get(mp);
         if (ep != null)
             ep.loadState(message.hungerStrikeEnabled);

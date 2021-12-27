@@ -1,9 +1,9 @@
 package com.jaquadro.minecraft.hungerstrike;
 
 import com.mojang.authlib.GameProfile;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.fml.LogicalSide;
@@ -15,19 +15,19 @@ import java.util.Map;
 
 public class PlayerHandler
 {
-    private static final Map<GameProfile, Map<String, CompoundNBT>> dataStore = new HashMap<>();
+    private static final Map<GameProfile, Map<String, CompoundTag>> dataStore = new HashMap<>();
 
-    public static List<PlayerEntity> getStrikingPlayers (MinecraftServer server) {
+    public static List<Player> getStrikingPlayers (MinecraftServer server) {
         return getPlayers(server, true);
     }
 
-    public static List<PlayerEntity> getNonStrikingPlayers (MinecraftServer server) {
+    public static List<Player> getNonStrikingPlayers (MinecraftServer server) {
         return getPlayers(server, false);
     }
 
-    private static List<PlayerEntity> getPlayers (MinecraftServer server, boolean isStriking) {
-        List<PlayerEntity> players = new ArrayList<>();
-        for (ServerPlayerEntity playerEnt : server.getPlayerList().getPlayers()) {
+    private static List<Player> getPlayers (MinecraftServer server, boolean isStriking) {
+        List<Player> players = new ArrayList<>();
+        for (ServerPlayer playerEnt : server.getPlayerList().getPlayers()) {
             ExtendedPlayer playerExt = ExtendedPlayer.get(playerEnt);
             if (playerExt != null && playerExt.isOnHungerStrike() == isStriking)
                 players.add(playerEnt);
@@ -36,23 +36,23 @@ public class PlayerHandler
         return players;
     }
 
-    public void storeData (PlayerEntity player) {
+    public void storeData (Player player) {
         ExtendedPlayer playerExt = ExtendedPlayer.get(player);
 
         if (playerExt != null) {
-            CompoundNBT data = new CompoundNBT();
+            CompoundTag data = new CompoundTag();
             playerExt.saveNBTData(data);
-
+            
             storeData(player, "HungerStrike", data);
         }
     }
 
-    public void storeData (PlayerEntity player, String name, CompoundNBT data) {
+    public void storeData (Player player, String name, CompoundTag data) {
         storeData(player.getGameProfile(), name, data);
     }
 
-    public void storeData (GameProfile profile, String name, CompoundNBT data) {
-        Map<String, CompoundNBT> store = dataStore.get(profile);
+    public void storeData (GameProfile profile, String name, CompoundTag data) {
+        Map<String, CompoundTag> store = dataStore.get(profile);
         if (store == null) {
             store = new HashMap<>();
             dataStore.put(profile, store);
@@ -61,35 +61,35 @@ public class PlayerHandler
         store.put(name, data);
     }
 
-    public void restoreData (PlayerEntity player) {
+    public void restoreData (Player player) {
         ExtendedPlayer playerExt = ExtendedPlayer.get(player);
 
         if (playerExt != null) {
-            CompoundNBT data = getData(player, "HungerStrike");
+            CompoundTag data = getData(player, "HungerStrike");
             if (data != null)
                 playerExt.loadNBTData(data);
         }
     }
 
-    public CompoundNBT getData (PlayerEntity player, String name) {
+    public CompoundTag getData (Player player, String name) {
         return getData(player.getGameProfile(), name);
     }
 
-    public CompoundNBT getData (GameProfile profile, String name) {
-        Map<String, CompoundNBT> store = dataStore.get(profile);
+    public CompoundTag getData (GameProfile profile, String name) {
+        Map<String, CompoundTag> store = dataStore.get(profile);
         if (store == null)
             return null;
 
         return store.remove(name);
     }
 
-    public void tick (PlayerEntity player, TickEvent.Phase phase, LogicalSide side) {
+    public void tick (Player player, TickEvent.Phase phase, LogicalSide side) {
         ExtendedPlayer playerExt = ExtendedPlayer.get(player);
         if (playerExt != null)
             playerExt.tick(phase, side);
     }
 
-    public boolean isOnHungerStrike (PlayerEntity player) {
+    public boolean isOnHungerStrike (Player player) {
         ExtendedPlayer playerExt = ExtendedPlayer.get(player);
         if (playerExt != null)
             return playerExt.isOnHungerStrike();

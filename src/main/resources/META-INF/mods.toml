@@ -1,12 +1,13 @@
 modLoader="javafml"
-loaderVersion="[32,)"
+loaderVersion="[37,)"
 issueTrackerURL="https://github.com/jaquadro/HungerStrike/issues"
 displayURL="https://minecraft.curseforge.com/projects/hungerstrike"
 authors="Texelsaur"
+license="MIT"
 
 [[mods]]
     modId="hungerstrike"
-    version="${version}"
+    version="${file.jarVersion}"
     displayName="Hunger Strike"
     description='''
     Restores pre-hunger health mechanics
@@ -15,13 +16,13 @@ authors="Texelsaur"
 [[dependencies.hungerstrike]]
     modId="forge"
     mandatory=true
-    versionRange="[32,)"
+    versionRange="[37,)"
     ordering="NONE"
     side="BOTH"
 
 [[dependencies.hungerstrike]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.16,)"
+    versionRange="[1.17,)"
     ordering="NONE"
     side="BOTH"
