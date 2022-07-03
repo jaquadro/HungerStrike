@@ -9,10 +9,10 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.GameProfileArgument;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.server.players.PlayerList;
 import net.minecraft.network.chat.ComponentUtils;
-import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -69,9 +69,9 @@ public class HungerStrikeCommand
         List<String> players = playersToNames(PlayerHandler.getStrikingPlayers(source.getServer()));
 
         if (players.size() == 0) {
-            source.sendSuccess(new TranslatableComponent("commands.hungerstrike.list.none"), false);
+            source.sendSuccess(Component.translatable("commands.hungerstrike.list.none"), false);
         } else {
-            source.sendSuccess(new TranslatableComponent("commands.hungerstrike.list", players.size(), String.join(", ", players)), false);
+            source.sendSuccess(Component.translatable("commands.hungerstrike.list", players.size(), String.join(", ", players)), false);
         }
 
         return players.size();
@@ -83,7 +83,7 @@ public class HungerStrikeCommand
             ExtendedPlayer player = ExtendedPlayer.get(source.getServer().getPlayerList().getPlayer(profile.getId()));
             if (player != null && !player.isOnHungerStrike()) {
                 player.enableHungerStrike(true);
-                source.sendSuccess(new TranslatableComponent("commands.hungerstrike.add.success", ComponentUtils.getDisplayName(profile)), true);
+                source.sendSuccess(Component.translatable("commands.hungerstrike.add.success", ComponentUtils.getDisplayName(profile)), true);
                 addedCount++;
             }
         }
@@ -97,7 +97,7 @@ public class HungerStrikeCommand
             ExtendedPlayer player = ExtendedPlayer.get(source.getServer().getPlayerList().getPlayer(profile.getId()));
             if (player != null && player.isOnHungerStrike()) {
                 player.enableHungerStrike(false);
-                source.sendSuccess(new TranslatableComponent("commands.hungerstrike.remove.success", ComponentUtils.getDisplayName(profile)), true);
+                source.sendSuccess(Component.translatable("commands.hungerstrike.remove.success", ComponentUtils.getDisplayName(profile)), true);
                 removedCount++;
             }
         }
@@ -109,11 +109,11 @@ public class HungerStrikeCommand
         ModConfig.Mode mode = ModConfig.GENERAL.mode.get();
 
         if (mode == ModConfig.Mode.NONE)
-            source.sendSuccess(new TranslatableComponent("commands.hungerstrike.mode.none"), false);
+            source.sendSuccess(Component.translatable("commands.hungerstrike.mode.none"), false);
         else if (mode == ModConfig.Mode.LIST)
-            source.sendSuccess(new TranslatableComponent("commands.hungerstrike.mode.list"), false);
+            source.sendSuccess(Component.translatable("commands.hungerstrike.mode.list"), false);
         else if (mode == ModConfig.Mode.ALL)
-            source.sendSuccess(new TranslatableComponent("commands.hungerstrike.mode.all"), false);
+            source.sendSuccess(Component.translatable("commands.hungerstrike.mode.all"), false);
 
         return 1;
     }
@@ -125,11 +125,11 @@ public class HungerStrikeCommand
         //    HungerStrike.network.sendToAll(new SyncConfigMessage());
 
         if (mode == ModConfig.Mode.NONE)
-            source.sendSuccess(new TranslatableComponent("commands.hungerstrike.setmode.none"), true);
+            source.sendSuccess(Component.translatable("commands.hungerstrike.setmode.none"), true);
         else if (mode == ModConfig.Mode.LIST)
-            source.sendSuccess(new TranslatableComponent("commands.hungerstrike.setmode.list"), true);
+            source.sendSuccess(Component.translatable("commands.hungerstrike.setmode.list"), true);
         else if (mode == ModConfig.Mode.ALL)
-            source.sendSuccess(new TranslatableComponent("commands.hungerstrike.setmode.all"), true);
+            source.sendSuccess(Component.translatable("commands.hungerstrike.setmode.all"), true);
 
         return 1;
     }
