@@ -13,7 +13,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -52,12 +52,12 @@ public class CommonProxy
     }
 
     @SubscribeEvent
-    public void entityJoinWorld (EntityJoinWorldEvent event) {
+    public void entityJoinWorld (EntityJoinLevelEvent event) {
         Entity entity = event.getEntity();
 
-        if (!event.getWorld().isClientSide && entity instanceof ServerPlayer)
+        if (!event.getLevel().isClientSide && entity instanceof ServerPlayer)
             playerHandler.restoreData((Player) entity);
-        else if (event.getWorld().isClientSide && entity instanceof ServerPlayer)
+        else if (event.getLevel().isClientSide && entity instanceof ServerPlayer)
            PacketHandler.INSTANCE.sendToServer(new PacketRequestSync());
     }
 

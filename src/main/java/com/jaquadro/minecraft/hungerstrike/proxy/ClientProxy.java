@@ -2,8 +2,9 @@ package com.jaquadro.minecraft.hungerstrike.proxy;
 
 import com.jaquadro.minecraft.hungerstrike.ModConfig;
 import net.minecraft.client.Minecraft;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.client.gui.ForgeIngameGui;
+import net.minecraftforge.client.event.RenderGuiOverlayEvent;
+import net.minecraftforge.client.gui.overlay.GuiOverlayManager;
+import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.common.MinecraftForge;
 
 public class ClientProxy extends CommonProxy {
@@ -21,8 +22,8 @@ public class ClientProxy extends CommonProxy {
         //HungerStrike.network.registerMessage(SyncConfigMessage.Handler.class, SyncConfigMessage.class, SyncConfigMessage.MESSAGE_ID, Side.CLIENT);
     }
 
-    private void renderGameOverlay (RenderGameOverlayEvent.PreLayer event) {
-        if (event.getOverlay() == ForgeIngameGui.FOOD_LEVEL_ELEMENT) {
+    private void renderGameOverlay (RenderGuiOverlayEvent.Pre event) {
+        if (event.getOverlay() == GuiOverlayManager.findOverlay(VanillaGuiOverlay.FOOD_LEVEL.id())) {
             if (!ModConfig.GENERAL.hideHungerBar.get())
                 return;
 
